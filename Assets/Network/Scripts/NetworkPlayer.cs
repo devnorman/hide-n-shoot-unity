@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using SimpleJSON;
 using UnityEngine;
 
-namespace Unity.SocketIO
-{
+namespace Unity.SocketIO {
    public class NetworkPlayer
    {
       public string Name { get; set; }

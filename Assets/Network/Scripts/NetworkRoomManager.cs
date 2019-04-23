@@ -30,12 +30,14 @@ namespace Unity.SocketIO
         }
 
         private void SetUpEvents () {
+            this.networkClient.Socket.On("onCreateRoom", OnCreateRoom);
             this.networkClient.Socket.On("onReceiveNewRoom", OnReceiveNewRoom);
             this.networkClient.Socket.On("onJoinRoom", OnJoinRoom);
             this.networkClient.Socket.On("onRefreshRoom", OnRefreshRoom);
         }
 
         private void OnDestroy () {
+            this.networkClient.Socket.Off("onCreateRoom", OnCreateRoom);
             this.networkClient.Socket.Off("onReceiveNewRoom", OnReceiveNewRoom);
             this.networkClient.Socket.Off("onJoinRoom", OnJoinRoom);
             this.networkClient.Socket.Off("onRefreshRoom", OnRefreshRoom);
@@ -58,13 +60,35 @@ namespace Unity.SocketIO
             this.networkClient.Socket.Emit("joinRoom", new JSONObject(data));
         }
 
+        public void LeaveRoom() {
+            if (this.currentRoom != null) {
+                Dictionary<string, string> data = new Dictionary<string, string>();
+                data["roomId"] = this.currentRoom.Id;
+                data["playerId"] = this.networkClient.ClientId;
+                this.networkClient.Socket.Emit("leaveRoom", new JSONObject(data));
+            }
+            this.currentRoom = null;
+        }
+
+        private void OnCreateRoom(SocketIOEvent e) {
+            this.OnReceiveNewRoom(e);
+            JSONNode json = JSON.Parse(e.data.ToString());
+            if (this.networkRooms.ContainsKey(json["id"].Value)) {
+                this.networkRooms[json["id"].Value].SetData(json);
+                this.currentRoom = this.networkRooms[json["id"].Value];
+                this.eventBroadcaster.BroadcastEvent("OnCreateRoom", this.currentRoom);
+            }
+        }
+
         // OnReceive new Room data, stored it locally...
         private void OnReceiveNewRoom(SocketIOEvent e) {
             JSONNode json = JSON.Parse(e.data.ToString());
-            var newRoom = new NetworkRoom();
-            newRoom.SetData(json);
-            this.networkRooms.Add(newRoom.Id, newRoom);
-            this.eventBroadcaster.BroadcastEvent("OnReceiveNewRoom", newRoom);
+            if (!this.networkRooms.ContainsKey(json["id"].Value)) {
+                var newRoom = new NetworkRoom();
+                newRoom.SetData(json);
+                this.networkRooms.Add(newRoom.Id, newRoom);
+                this.eventBroadcaster.BroadcastEvent("OnReceiveNewRoom", newRoom);
+            }
         }
 
         // Monitor Change of a specific Room...
@@ -83,7 +107,7 @@ namespace Unity.SocketIO
             if (this.networkRooms.ContainsKey(json["id"].Value)) {
                 this.networkRooms[json["id"].Value].SetData(json);
                 this.currentRoom = this.networkRooms[json["id"].Value];
-                this.eventBroadcaster.BroadcastEvent("OnRefreshRoom", this.currentRoom);
+                this.eventBroadcaster.BroadcastEvent("OnJoinRoom", this.currentRoom);
             }
         }
     }
