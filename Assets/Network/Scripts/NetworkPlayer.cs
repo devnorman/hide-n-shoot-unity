@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Unity.SocketIO {
    public class NetworkPlayer
    {
-      public string Name { get; set; }
+      public string DisplayName { get; set; }
       public string Id { get; private set; }
 
       public NetworkPlayer(string id) {

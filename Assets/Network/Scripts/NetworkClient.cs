@@ -29,17 +29,29 @@ namespace Unity.SocketIO
             this.SetUpEvents();
         }
 
+        public NetworkPlayer Player {
+            get {
+                if (this.networkPlayers.ContainsKey(this.ClientId)) {
+                    return this.networkPlayers[this.ClientId];
+                }
+                return null;
+            }
+        }
+
         private void SetUpEvents() {
             this.Socket.On("onConnect", OnConnect);
             this.Socket.On("disconnect", OnDisconnect);
             this.Socket.On("onOtherPlayerConnect", OnOtherPlayerConnect);
+            this.Socket.On("onUpdatePlayer", OnUpdatePlayer);
         }
 
         // OnConnect to the server, assign the ClientID...
         private void OnConnect(SocketIOEvent e) {
             JSONNode json = JSON.Parse(e.data.ToString());
             this.ClientId = json["id"].Value;
-            this.networkPlayers.Add(this.ClientId, new NetworkPlayer(json["id"].Value));
+            var player = new NetworkPlayer(json["id"].Value);
+            player.DisplayName = json["displayName"].Value;
+            this.networkPlayers.Add(this.ClientId, player);
             this.eventBroadcaster.BroadcastEvent("OnConnect");
             Debug.Log("Connected to the Server...");
         }
@@ -48,12 +60,30 @@ namespace Unity.SocketIO
         private void OnOtherPlayerConnect(SocketIOEvent e) {
             JSONNode json = JSON.Parse(e.data.ToString());
             if(!this.networkPlayers.ContainsKey(json["id"].Value)) {
-                this.networkPlayers.Add(json["id"].Value, new NetworkPlayer(json["id"].Value));
+                var player = new NetworkPlayer(json["id"].Value);
+                player.DisplayName = json["displayName"].Value;
+                this.networkPlayers.Add(player.Id, player);
+            }
+        }
+
+        private void OnUpdatePlayer (SocketIOEvent e) {
+            JSONNode json = JSON.Parse(e.data.ToString());
+            if(this.networkPlayers.ContainsKey(json["id"].Value)) {
+                this.networkPlayers[json["id"].Value].DisplayName = json["displayName"].Value;
+                this.eventBroadcaster.BroadcastEvent("OnUpdatePlayer", this.networkPlayers[json["id"].Value]);
             }
         }
 
         private void OnDisconnect(SocketIOEvent e) {
             Debug.Log("Disconnected from the Server...");
+        }
+
+        
+
+        public void ChangeDisplayName(string displayName) {
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            data["displayName"] = displayName;
+            this.Socket.Emit("changeDisplayName", new JSONObject(data));   
         }
 
     }
