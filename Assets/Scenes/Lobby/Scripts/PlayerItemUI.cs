@@ -13,7 +13,7 @@ namespace Unity.SocketIO {
 
         public void SetData(NetworkPlayer player) {
             this.player = player;
-            this.playerName.text = player.Id;
+            this.playerName.text = player.DisplayName;
         }
 
         public void Kick() {

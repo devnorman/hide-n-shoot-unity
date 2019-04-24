@@ -96,8 +96,14 @@ namespace Unity.SocketIO
             Debug.Log(e.data.ToString());
             JSONNode json = JSON.Parse(e.data.ToString());
             if (this.networkRooms.ContainsKey(json["id"].Value)) {
-                this.networkRooms[json["id"].Value].SetData(json);
-                this.eventBroadcaster.BroadcastEvent("OnRefreshRoom", this.networkRooms[json["id"].Value]);
+                var room = this.networkRooms[json["id"].Value];
+                room.SetData(json);
+                if (room.PlayerCount > 0) {
+                    this.eventBroadcaster.BroadcastEvent("OnRefreshRoom", room);
+                } else {
+                    this.networkRooms.Remove(room.Id);
+                    this.eventBroadcaster.BroadcastEvent ("OnDeleteRoom", room);
+                }
             }
         }
 
