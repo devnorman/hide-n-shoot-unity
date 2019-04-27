@@ -15,6 +15,8 @@ namespace Unity.SocketIO {
 
        public List<string> playerIds;
 
+       public string hostPlayerId;
+
        public int PlayerCount {
            get {
                return this.playerIds.Count;
@@ -28,6 +30,7 @@ namespace Unity.SocketIO {
            this.Name = name;
            this.playerIds = new List<string>();
            this.playerIds.Add(playerId);
+           this.hostPlayerId = playerId;
        }
 
        public void SetData(JSONNode data) {
@@ -37,6 +40,7 @@ namespace Unity.SocketIO {
            foreach(var item in data["playerIds"].Values) {
                this.playerIds.Add(item.Value);
            }
+           this.hostPlayerId = data["hostPlayerId"].Value;
        }
     }
 }
