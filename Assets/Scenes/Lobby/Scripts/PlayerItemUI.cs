@@ -16,7 +16,7 @@ namespace Unity.SocketIO {
             this.player = player;
             this.playerName.text = player.DisplayName;
             this.hostTag.SetActive(
-                NetworkRoomManager.Instance.currentRoom.hostPlayerId == player.Id
+                NetworkRoomManager.Instance.currentRoom.HostPlayerId == player.Id
             );
         }
 

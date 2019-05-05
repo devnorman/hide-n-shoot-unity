@@ -13,34 +13,37 @@ namespace Unity.SocketIO {
 
        public string Name;
 
-       public List<string> playerIds;
+       public List<string> PlayerIds;
 
-       public string hostPlayerId;
+       public string HostPlayerId;
 
        public int PlayerCount {
            get {
-               return this.playerIds.Count;
+               return this.PlayerIds.Count;
            }
        }
+
+       public int PlayerLimit;
 
        public NetworkRoom() {}
 
        public NetworkRoom(string playerId, string name) {
            this.PlayerId = playerId;
            this.Name = name;
-           this.playerIds = new List<string>();
-           this.playerIds.Add(playerId);
-           this.hostPlayerId = playerId;
+           this.PlayerIds = new List<string>();
+           this.PlayerIds.Add(playerId);
+           this.HostPlayerId = playerId;
        }
 
        public void SetData(JSONNode data) {
            this.Id = data["id"].Value;
            this.Name = data["name"].Value;
-           this.playerIds = new List<string>();
+           this.PlayerLimit = int.Parse(data["playerLimit"].Value);
+           this.PlayerIds = new List<string>();
            foreach(var item in data["playerIds"].Values) {
-               this.playerIds.Add(item.Value);
+               this.PlayerIds.Add(item.Value);
            }
-           this.hostPlayerId = data["hostPlayerId"].Value;
+           this.HostPlayerId = data["hostPlayerId"].Value;
        }
     }
 }

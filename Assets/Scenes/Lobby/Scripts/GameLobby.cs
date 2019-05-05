@@ -96,7 +96,7 @@ namespace Unity.SocketIO {
             if(this.roomManager.currentRoom != null) {
                 this.playerItems = new Dictionary<string, PlayerItemUI> ();
                 this.playerItemUIPool.TogglePooledObjects(false);
-                foreach (var playerId in this.roomManager.currentRoom.playerIds) {
+                foreach (var playerId in this.roomManager.currentRoom.PlayerIds) {
                     PlayerItemUI playerItemUI = this.playerItemUIPool.GetPooledObject(true).GetComponent<PlayerItemUI>();
                     playerItemUI.SetData(NetworkClient.Instance.networkPlayers[playerId]);
                     playerItemUI.transform.SetParent(this.playerItemUIList);
