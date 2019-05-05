@@ -8,6 +8,7 @@ namespace Unity.SocketIO {
     {
         public Text roomName;
         public Text playerNumber;
+        public Text playerLimit;
 
         private NetworkRoom room;
         
@@ -15,6 +16,7 @@ namespace Unity.SocketIO {
             this.room = room;
             this.roomName.text = room.Name;
             this.playerNumber.text = room.PlayerCount.ToString();
+            this.playerLimit.text = room.PlayerLimit.ToString();
         }
 
         public void Join () {
